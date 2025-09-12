@@ -10,7 +10,7 @@ load spatial;
 COPY ( 
     (SELECT
         'Feature' AS type,
-        json(st_asgeojson(st_geomfromwkb(geometry))) AS geometry,
+        CAST(ST_AsGeoJSON(geometry) AS JSON) AS geometry,
         json_object(
             'layer', 'division_boundary',
             'minzoom', CASE WHEN (subtype = 'country' OR subtype = 'dependency') THEN 0 WHEN subtype = 'region' THEN 4 WHEN subtype = 'county' THEN 8 ELSE 10 END
@@ -28,7 +28,7 @@ COPY (
     UNION ALL
     (SELECT
     'Feature' AS type,
-    json(st_asgeojson(st_geomfromwkb(geometry))) AS geometry,
+    CAST(ST_AsGeoJSON(geometry) AS JSON) AS geometry,
     json_object(
         'layer', 'division',
         'minzoom', CASE WHEN (subtype = 'country' OR subtype = 'dependency') THEN 0 WHEN subtype = 'region' THEN 4 WHEN subtype = 'county' THEN 8 ELSE 10 END
@@ -56,7 +56,7 @@ FROM read_parquet('$1/theme=divisions/type=division/*'))
     UNION ALL
     (SELECT
         'Feature' AS type,
-        json(st_asgeojson(st_geomfromwkb(geometry))) AS geometry,
+        CAST(ST_AsGeoJSON(geometry) AS JSON) AS geometry,
         json_object(
             'layer', 'division_area',
             'minzoom', CASE WHEN (subtype = 'country' OR subtype = 'dependency') THEN 0 WHEN subtype = 'region' THEN 4 WHEN subtype = 'county' THEN 8 ELSE 10 END
