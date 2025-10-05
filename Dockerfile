@@ -19,7 +19,7 @@ RUN rm -r /opt/tippecanoe-2.79.0
 
 # download and install duckdb for reading Overture Parquet files.
 
-RUN curl -L https://github.com/duckdb/duckdb/releases/download/v1.3.2/duckdb_cli-linux-${TARGETARCH}.zip -o duckdb_cli-linux.zip && unzip duckdb_cli-linux.zip -d /usr/local/bin/ && rm duckdb_cli-linux.zip
+RUN curl -L https://github.com/duckdb/duckdb/releases/download/v1.4.0/duckdb_cli-linux-${TARGETARCH}.zip -o duckdb_cli-linux.zip && unzip duckdb_cli-linux.zip -d /usr/local/bin/ && rm duckdb_cli-linux.zip
 
 RUN duckdb -c "install httpfs; install spatial;"
 
@@ -32,7 +32,7 @@ RUN curl -L https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip -o awscliv
 
 # Download planetiler JAR.
 
-RUN curl -L https://github.com/onthegomap/planetiler/releases/download/v0.9.1/planetiler.jar -o planetiler.jar
+RUN curl -L https://github.com/onthegomap/planetiler/releases/download/v0.9.2/planetiler.jar -o planetiler.jar
 
 # copy current scripts into image.
 
