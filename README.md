@@ -47,22 +47,35 @@ The CDK stack creates AWS Batch infrastructure for processing tiles at scale. Co
 For detailed deployment instructions, see the [Overture Tiles documentation](https://docs.overturemaps.org/examples/overture-tiles/).
 
 
-## Testing Locally
-It is possible to test the tile generation process locally using Docker. Just ensure that the `SKIP_UPLOAD` environment variable is set to `true` to skip the upload step. Example for generating tiles for San Francisco:
+## Development
 
+### Prerequisites
+To work with this project locally, you'll need:
+- **[Docker](https://docs.docker.com/get-docker/)** - For running the tile generation container
+- **[AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)** - For deployment and S3 operations (optional for local testing)
+- **[Just](https://github.com/casey/just)** - Command runner for development tasks (optional but recommended)
+
+### Testing Locally
+You can test the tile generation process locally using Docker. Set the `SKIP_UPLOAD` environment variable to `true` to skip the upload step.
+
+Using the justfile (recommended):
+```sh
+just test-local places
+```
+
+Or manually with Docker:
 ```sh
 docker build -t overture-tiles:test .
 docker run --name overture-test \
+    -v $(pwd):/data \
     -e RELEASE='2025-11-19.0' \
-    -e OUTPUT='empty' \
+    -e OUTPUT='noop' \
+    -e THEME='places' \
     -e BBOX='-122.5247,37.7081,-122.3569,37.8324' \
     -e SKIP_UPLOAD='true' \
     overture-tiles:test
-docker cp overture-test:/places.pmtiles ./sf-places.pmtiles
 docker rm overture-test
 ```
-
-> **Optional**: Mount a local directory as a volume (add `-v $(pwd):/output` to the `docker run` command) to access the generated PMTiles directly without needing `docker cp`.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md)  for details.
