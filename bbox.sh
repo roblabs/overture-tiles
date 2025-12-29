@@ -5,10 +5,12 @@ set -u
 set -o pipefail
 
 # Arguments from run.sh
-INPUT_SOURCE=$1
+RELEASE=$1
 BBOX=$2
 THEME=$3
 OUTPUT_DIR=$4
+OVERTURE_RELEASE_BUCKET=$5
+OVERTURE_REGION=$6
 
 # Parse bbox
 IFS=',' read -r MIN_LON MIN_LAT MAX_LON MAX_LAT <<< "$BBOX"
@@ -42,7 +44,7 @@ for TYPE in $TYPES; do
     mkdir -p "$TYPE_DIR"
 
     OUTPUT_FILE="$TYPE_DIR/filtered.parquet"
-    S3_PATH="$INPUT_SOURCE/theme=$THEME/type=$TYPE/*.parquet"
+    S3_PATH="$OVERTURE_RELEASE_BUCKET/$RELEASE/theme=$THEME/type=$TYPE/*.parquet"
 
     # Run DuckDB query
     duckdb -c "
@@ -50,7 +52,7 @@ for TYPE in $TYPES; do
     LOAD spatial;
 
     -- Configure for anonymous S3 access
-    SET s3_region='us-west-2';
+    SET s3_region='$OVERTURE_REGION';
     SET s3_url_style='path';
 
     -- Query and filter data by bbox
