@@ -7,7 +7,6 @@ import {
 } from "aws-cdk-lib";
 import { aws_batch as batch, aws_ecs as ecs } from "aws-cdk-lib";
 import { aws_iam as iam } from "aws-cdk-lib";
-import { aws_ecr as ecr } from "aws-cdk-lib";
 
 const ID = "OvertureTiles";
 
@@ -69,7 +68,8 @@ export class OvertureTilesCdkStack extends cdk.Stack {
     );
     distribution.applyRemovalPolicy(cdk.RemovalPolicy.RETAIN);
 
-    const repository = new ecr.Repository(this, `${ID}Repository`);
+    // Use public ECR repository for the overture-tiles image
+    const imageUri = 'public.ecr.aws/y1b4e9z6/overture-tiles:latest';
 
     const role = new iam.Role(this, `${ID}JobRole`, {
       assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com"),
@@ -115,9 +115,7 @@ export class OvertureTilesCdkStack extends cdk.Stack {
           this,
           `${ID}Container_${theme}`,
           {
-            image: ecs.ContainerImage.fromRegistry(
-              `${repository.repositoryUri}:latest`,
-            ),
+            image: ecs.ContainerImage.fromRegistry(imageUri),
             memory: cdk.Size.gibibytes(60),
             cpu: 30,
             jobRole: role,
