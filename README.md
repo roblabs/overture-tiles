@@ -1,3 +1,5 @@
+> A pre-built image is available at `public.ecr.aws/y1b4e9z6/overture-tiles:latest`
+
 # Overture Tiles
 Create tilesets from [Overture Maps](http://overturemaps.org) data.
 
