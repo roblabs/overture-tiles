@@ -62,7 +62,7 @@ export class OvertureTilesCdkStack extends cdk.Stack {
       `${ID}Distribution`,
       {
         defaultBehavior: {
-          origin: new origins.S3Origin(bucket),
+          origin: origins.S3BucketOrigin.withOriginAccessControl(bucket),
         },
       },
     );
