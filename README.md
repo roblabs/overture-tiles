@@ -17,7 +17,7 @@ The repository is organized into the following main components:
 ## Architecture
 The tile generation pipeline follows a three-stage process:
 
-1. **Download**: Fetches Overture Maps data from the official S3 release (specified via `RELEASE` environment variable) or a custom S3 source (via `SOURCE_OVERRIDE` for internal testing). When using `RELEASE`, optionally supports geographic filtering using bounding boxes (`BBOX` environment variable) for smaller regional extracts.
+1. **Download**: Fetches Overture Maps data from the official S3 release (specified via `RELEASE` environment variable). Optionally supports geographic filtering using bounding boxes (`BBOX` environment variable) for smaller regional extracts.
 
 2. **Transform**: Processes the downloaded data into PMTiles format using theme-specific profiles and scripts (see Profiles and Scripts section below).
 
@@ -33,9 +33,8 @@ The Docker container accepts the following environment variables:
 | `RELEASE` | Yes* | Overture Maps release version (e.g., `2025-11-19.0`). *Required unless `SOURCE_OVERRIDE` is set. |
 | `OUTPUT` | Yes | S3 bucket path for uploading generated PMTiles |
 | `THEME` | Yes | Theme to process (`base`, `transportation`, `buildings`, `addresses`, `places`, or `divisions`) |
-| `BBOX` | No | Bounding box for regional extracts (format: `minLon,minLat,maxLon,maxLat`). Only works with `RELEASE`. |
-| `SOURCE_OVERRIDE` | No | Custom S3 path for input data (for internal use). Overrides `RELEASE` if set. |
-| `S3_REGION` | No | S3 region for custom sources (defaults to `us-west-2`) |
+| `BBOX` | No | Bounding box for regional extracts (format: `minLon,minLat,maxLon,maxLat`) |
+| `S3_REGION` | No | S3 region for data access (defaults to `us-west-2`) |
 | `SKIP_UPLOAD` | No | Set to `true` to skip S3 upload (useful for local testing) |
 
 ## Profiles and Scripts
@@ -58,6 +57,14 @@ To work with this project locally, you'll need:
 - **[Docker](https://docs.docker.com/get-docker/)** - For running the tile generation container
 - **[AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)** - For deployment and S3 operations (optional for local testing)
 - **[Just](https://github.com/casey/just)** - Command runner for development tasks (optional but recommended)
+
+### Internal: Custom Data Source
+
+For testing with custom or pre-release data, `SOURCE_OVERRIDE` can be set to a custom S3 path instead of `RELEASE`. The data must follow the standard Overture parquet layout (`theme=X/type=Y/*.parquet`) and include a `bbox` struct column. `BBOX` filtering is also supported when using `SOURCE_OVERRIDE`.
+
+| Variable | Description |
+|----------|-------------|
+| `SOURCE_OVERRIDE` | Custom S3 path for input data. Overrides `RELEASE` if set. |
 
 ### Testing Locally
 You can test the tile generation process locally using Docker. Set the `SKIP_UPLOAD` environment variable to `true` to skip the upload step.
