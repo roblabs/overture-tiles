@@ -1,0 +1,49 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+{
+	"name": "OvertureMaps.org",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	// https://github.com/devcontainers/images/blob/main/src/base-ubuntu/README.md
+	"image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/devcontainers/features/aws-cli": {},
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": "true",
+			"username": "overture",
+			"upgradePackages": "true"
+		},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+			"version": "latest",
+			"moby": true
+		}
+	},
+
+	// Mount:  Docker & AWS
+	"mounts": [
+		"source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind",
+		"source=${localEnv:HOME}/.aws,target=/home/overture/.aws,type=bind,consistency=cached"
+	],
+
+	// Configure tool-specific properties.
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			"settings": {},
+			"extensions": [
+				"amazonwebservices.aws-toolkit-vscode",
+				"CTC.vscode-tree-extension",
+				"ms-azuretools.vscode-docker",
+				"ms-vscode-remote.remote-containers",
+				"swallow.geojson-io-for-vscode",
+				"skellock.just"
+			]
+		}
+	},
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "/bin/sh ./.devcontainer/postCreateCommand.sh",
+
+	// Set `remoteUser` to `root` to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "overture"
+}

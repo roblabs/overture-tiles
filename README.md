@@ -57,6 +57,8 @@ To work with this project locally, you'll need:
 - **[Docker](https://docs.docker.com/get-docker/)** - For running the tile generation container
 - **[AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)** - For deployment and S3 operations (optional for local testing)
 - **[Just](https://github.com/casey/just)** - Command runner for development tasks (optional but recommended)
+- **[Visual Studio Code Dev Containers]()** - Develop with a consistent, easily reproducible toolchain.  Make it easy for new team members / contributors to get up and running in a consistent development environment.  See [.devcontainer/devcontainer.json 
+](.devcontainer/devcontainer.json)
 
 ### Internal: Custom Data Source
 
