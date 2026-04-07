@@ -4,6 +4,7 @@ FROM debian:bookworm-slim
 ARG TARGETARCH
 ARG TIPPECANOE_VERSION=2.79.0
 ARG DUCKDB_VERSION=1.4.3
+ARG JAVA_VERSION=21
 ARG PLANETILER_VERSION=0.9.2
 ARG S5CMD_VERSION=2.3.0
 
@@ -51,7 +52,7 @@ RUN apt-get update && \
     echo "deb [signed-by=/usr/share/keyrings/corretto-keyring.gpg] https://apt.corretto.aws stable main" \
         > /etc/apt/sources.list.d/corretto.list && \
     apt-get update && \
-    apt-get install -y --no-install-recommends java-22-amazon-corretto-headless && \
+    apt-get install -y --no-install-recommends java-${JAVA_VERSION}-amazon-corretto-jdk && \
     rm -rf /var/lib/apt/lists/* && \
     \
     # Download Planetiler JAR (tile generation for large themes)
