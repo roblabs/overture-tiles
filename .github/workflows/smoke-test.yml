@@ -1,0 +1,64 @@
+# Smoke Test
+# Builds the Docker image and runs a small bbox test for each theme matrix entry.
+# Verifies that the output PMTiles file is created and non-trivially sized.
+#
+# Test locally with act (requires Docker, ~18 GB runner image on first pull):
+#   act workflow_dispatch -j smoke-test --matrix theme:places \
+#       -P ubuntu-latest=catthehacker/ubuntu:full-latest
+
+name: Smoke Test
+
+on:
+  push:
+  pull_request:
+    paths:
+      - Dockerfile
+      - run.sh
+      - bbox.sh
+      - scripts/**
+      - profiles/**
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        theme: [places, divisions]
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
+
+      - name: Build image
+        run: docker build -t overture-tiles:ci .
+
+      - name: Get latest Overture release
+        id: release
+        run: |
+          RELEASE=$(curl -s https://stac.overturemaps.org/catalog.json | jq -r '.links[] | select(.rel=="child") | .title' | sort -r | head -1)
+          echo "version=${RELEASE}" >> "$GITHUB_OUTPUT"
+
+      - name: Run smoke test (${{ matrix.theme }})
+        run: |
+          mkdir -p output
+          docker run --rm \
+            -v "${{ github.workspace }}/output:/data" \
+            -e THEME=${{ matrix.theme }} \
+            -e RELEASE=${{ steps.release.outputs.version }} \
+            -e OUTPUT=/data/ \
+            -e SKIP_UPLOAD=true \
+            -e BBOX="-122.45,47.55,-122.25,47.65" \
+            overture-tiles:ci
+
+      - name: Verify output
+        run: |
+          OUTPUT_FILE="output/${{ matrix.theme }}.pmtiles"
+          if [ ! -f "$OUTPUT_FILE" ]; then
+            echo "ERROR: $OUTPUT_FILE not found"
+            exit 1
+          fi
+          SIZE=$(stat -c%s "$OUTPUT_FILE")
+          echo "$OUTPUT_FILE: ${SIZE} bytes"
+          if [ "$SIZE" -lt 1024 ]; then
+            echo "ERROR: output file suspiciously small (${SIZE} bytes)"
+            exit 1
+          fi
