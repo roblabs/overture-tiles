@@ -11,17 +11,19 @@ ARG S5CMD_VERSION=2.3.0
 LABEL org.opencontainers.image.title="overture-tiles"
 
 # Install all tools in a single layer so build-only packages can be purged without
-# bloating intermediate layers. Runtime shared libs (libsqlite3-0, zlib1g) are
-# retained by apt when the corresponding -dev packages are purged.
+# bloating intermediate layers. libsqlite3-0 and zlib1g are listed explicitly so
+# apt marks them as manually installed and --auto-remove does not pull them out.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
         g++ \
         gnupg2 \
+        libsqlite3-0 \
         libsqlite3-dev \
         make \
         unzip \
+        zlib1g \
         zlib1g-dev \
     && rm -rf /var/lib/apt/lists/* && \
     \
