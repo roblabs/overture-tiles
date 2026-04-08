@@ -22,14 +22,28 @@ on:
       - profiles/**
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   smoke-test:
+    name: Smoke Test
     runs-on: ubuntu-latest
     strategy:
       matrix:
         theme: [places, divisions]
+
+    permissions:
+      contents: read
+
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Build image
         run: docker build -t overture-tiles:ci .
@@ -41,20 +55,25 @@ jobs:
           echo "version=${RELEASE}" >> "$GITHUB_OUTPUT"
 
       - name: Run smoke test (${{ matrix.theme }})
+        env:
+          THEME: ${{ matrix.theme }}
+          RELEASE: ${{ steps.release.outputs.version }}
         run: |
           mkdir -p output
           docker run --rm \
-            -v "${{ github.workspace }}/output:/data" \
-            -e THEME=${{ matrix.theme }} \
-            -e RELEASE="${{ steps.release.outputs.version }}" \
+            -v "${GITHUB_WORKSPACE}/output:/data" \
+            -e THEME="${THEME}" \
+            -e RELEASE="${RELEASE}" \
             -e OUTPUT=/data/ \
             -e SKIP_UPLOAD=true \
             -e BBOX="-122.45,47.55,-122.25,47.65" \
             overture-tiles:ci
 
       - name: Verify output
+        env:
+          THEME: ${{ matrix.theme }}
         run: |
-          OUTPUT_FILE="output/${{ matrix.theme }}.pmtiles"
+          OUTPUT_FILE="output/${THEME}.pmtiles"
           if [ ! -f "$OUTPUT_FILE" ]; then
             echo "ERROR: $OUTPUT_FILE not found"
             exit 1
