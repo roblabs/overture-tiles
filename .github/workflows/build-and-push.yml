@@ -1,3 +1,10 @@
+# Build and Push Docker Image
+# Triggered on GitHub release publish. Builds a multi-platform Docker image,
+# generates SLSA provenance and SBOM attestations, and pushes to GitHub Container Registry (ghcr.io).
+#
+# Verify attestations after release:
+#   gh attestation verify oci://ghcr.io/ORG/REPO:TAG --owner ORG
+
 name: Build and Push Docker Image
 
 on:
@@ -19,7 +26,9 @@ jobs:
 
     permissions:
       contents: read
-      packages: write  # Required to push to GitHub Container Registry
+      packages: write      # Required to push to GitHub Container Registry
+      id-token: write      # Required to mint OIDC token for attestation signing
+      attestations: write  # Required to write GitHub-native build attestations
 
     steps:
       - name: Checkout code
@@ -55,13 +64,23 @@ jobs:
           echo "repository=${REPO,,}" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker image
+        id: build
         uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 #v7.0.0
         with:
           context: .
           platforms: linux/arm64
           push: true
+          provenance: mode=max  # SLSA provenance attestation manifest stored in registry
+          sbom: true            # SPDX SBOM attestation manifest stored in registry
           tags: |
             ghcr.io/${{ steps.lowercase.outputs.repository }}:latest
             ghcr.io/${{ steps.lowercase.outputs.repository }}:${{ steps.version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Attest image provenance
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 #v4.1.0
+        with:
+          subject-name: ghcr.io/${{ steps.lowercase.outputs.repository }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
