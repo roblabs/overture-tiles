@@ -1,10 +1,6 @@
 # Smoke Test
 # Builds the Docker image and runs a small bbox test for each theme matrix entry.
 # Verifies that the output PMTiles file is created and non-trivially sized.
-#
-# Test locally with act (requires Docker, ~18 GB runner image on first pull):
-#   act workflow_dispatch -j smoke-test --matrix theme:places \
-#       -P ubuntu-24.04-arm=catthehacker/ubuntu:full-latest
 
 name: Smoke Test
 
