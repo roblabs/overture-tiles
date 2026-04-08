@@ -6,6 +6,9 @@
 #   act workflow_dispatch -j smoke-test --matrix theme:places \
 #       -P ubuntu-latest=catthehacker/ubuntu:full-latest
 
+
+# https://github.com/extractions/setup-just ?
+
 name: Smoke Test
 
 on:
@@ -43,7 +46,7 @@ jobs:
           docker run --rm \
             -v "${{ github.workspace }}/output:/data" \
             -e THEME=${{ matrix.theme }} \
-            -e RELEASE=${{ steps.release.outputs.version }} \
+            -e RELEASE="${{ steps.release.outputs.version }}" \
             -e OUTPUT=/data/ \
             -e SKIP_UPLOAD=true \
             -e BBOX="-122.45,47.55,-122.25,47.65" \
