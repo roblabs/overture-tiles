@@ -61,5 +61,5 @@ fi
 
 if [ "$SKIP_UPLOAD" != "true" ]; then
   [[ "$OUTPUT" != */ ]] && OUTPUT="${OUTPUT}/"
-  s5cmd cp /data/$THEME.pmtiles "$OUTPUT"
+  AWS_REGION="$S3_REGION" s5cmd cp /data/$THEME.pmtiles "$OUTPUT"
 fi

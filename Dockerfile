@@ -48,7 +48,7 @@ RUN apt-get update && \
     mv s5cmd /usr/local/bin/s5cmd && \
     rm s5cmd.tar.gz && \
     \
-    # Install Java 22 via Amazon Corretto (for Planetiler single-file .java profiles, large themes)
+    # Install Java via Amazon Corretto (for Planetiler single-file .java profiles, large themes)
     curl -fsSL https://apt.corretto.aws/corretto.key | \
         gpg --dearmor -o /usr/share/keyrings/corretto-keyring.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/corretto-keyring.gpg] https://apt.corretto.aws stable main" \

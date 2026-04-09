@@ -1,5 +1,5 @@
 # Build and Push Docker Image
-# Triggered on GitHub release publish. Builds a multi-platform Docker image,
+# Triggered on GitHub release publish. Builds a Linux ARM64 Docker image,
 # generates SLSA provenance and SBOM attestations, and pushes to GitHub Container Registry (ghcr.io).
 #
 # Verify attestations after release:
