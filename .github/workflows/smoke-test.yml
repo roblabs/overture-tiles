@@ -5,7 +5,6 @@
 name: Smoke Test
 
 on:
-  push:
   pull_request:
     paths:
       - Dockerfile
