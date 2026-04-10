@@ -10,13 +10,22 @@ ARG S5CMD_VERSION=2.3.0
 LABEL org.opencontainers.image.title="overture-tiles"
 
 # Install all tools in a single layer so build-only packages can be purged without
-# bloating intermediate layers. libsqlite3-0 and zlib1g are listed explicitly so
-# apt marks them as manually installed and --auto-remove does not pull them out.
+# bloating intermediate layers.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
         gnupg2 \
+    && \
+    \
+    # Add Amazon Corretto apt repo (Java for Planetiler single-file .java profiles)
+    curl -fsSL https://apt.corretto.aws/corretto.key | \
+        gpg --dearmor -o /usr/share/keyrings/corretto-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/corretto-keyring.gpg] https://apt.corretto.aws stable main" \
+        > /etc/apt/sources.list.d/corretto.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        java-${JAVA_VERSION}-amazon-corretto-jdk \
         unzip \
     && rm -rf /var/lib/apt/lists/* && \
     \
@@ -33,15 +42,6 @@ RUN apt-get update && \
         -o duckdb_cli.zip && \
     unzip duckdb_cli.zip -d /usr/local/bin/ && \
     rm duckdb_cli.zip && \
-    \
-    # Install Java via Amazon Corretto (for Planetiler single-file .java profiles)
-    curl -fsSL https://apt.corretto.aws/corretto.key | \
-        gpg --dearmor -o /usr/share/keyrings/corretto-keyring.gpg && \
-    echo "deb [signed-by=/usr/share/keyrings/corretto-keyring.gpg] https://apt.corretto.aws stable main" \
-        > /etc/apt/sources.list.d/corretto.list && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends java-${JAVA_VERSION}-amazon-corretto-jdk && \
-    rm -rf /var/lib/apt/lists/* && \
     \
     # Download Planetiler JAR (tile generation)
     curl -fsSL "https://github.com/onthegomap/planetiler/releases/download/v${PLANETILER_VERSION}/planetiler.jar" \
