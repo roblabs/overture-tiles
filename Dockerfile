@@ -8,7 +8,7 @@ ARG S5CMD_VERSION=2.3.0
 
 # Download Java 22+ for single-file .java Planetiler profiles
 
-RUN yum update -y && yum install -y java-22-amazon-corretto-headless unzip && yum clean all
+RUN yum update -y && yum install -y java-22-amazon-corretto-headless tar unzip && yum clean all
 
 # Install s5cmd for S3 operations (parallel transfers; prefer over AWS CLI for data movement)
 RUN S5CMD_ARCH=$([ "${TARGETARCH}" = "arm64" ] && echo "Linux-arm64" || echo "Linux-64bit") && \
