@@ -52,12 +52,8 @@ else
 fi
 
 # Generate tiles based on theme
-if [ "$THEME" == "places" ] || [ "$THEME" == "divisions" ]; then
-  bash /scripts/${THEME}.sh /data /data/$THEME.pmtiles
-else
-  className="${THEME^}"
-  java -cp planetiler.jar /profiles/$className.java --data=/data
-fi
+className="${THEME^}"
+java -XX:MaxRAMPercentage=70 -cp planetiler.jar /profiles/$className.java --data=/data
 
 if [ "$SKIP_UPLOAD" != "true" ]; then
   [[ "$OUTPUT" != */ ]] && OUTPUT="${OUTPUT}/"
