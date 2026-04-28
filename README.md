@@ -4,22 +4,21 @@
 Create tilesets from [Overture Maps](http://overturemaps.org) data.
 
 ## Overview
-This project provides tools to create vector tilesets in PMTiles format from Overture Maps data using a combination of Planetiler and Tippecanoe. It includes AWS CDK constructs for deploying the necessary infrastructure to generate and host the tilesets.
+This project provides tools to create vector tilesets in PMTiles format from Overture Maps data using Planetiler. It includes AWS CDK constructs for deploying the necessary infrastructure to generate and host the tilesets.
 
 > **Note**: Currently focused on AWS infrastructure (S3 & Batch), though the core processing runs in Docker containers
 
 ## Project Structure
 The repository is organized into the following main components:
 - **Infrastructure**: AWS CDK constructs to deploy the processing and hosting infrastructure.
-- **Profiles**: Profiles for Planetiler to define how to process Overture Maps data into vector tiles.
-- **Scripts**: Scripts are recipes to run Tippecanoe with specific configurations for generating PMTiles.
+- **Profiles**: Planetiler profiles to define how to process Overture Maps data into vector tiles for all six themes.
 
 ## Architecture
 The tile generation pipeline follows a three-stage process:
 
 1. **Download**: Fetches Overture Maps data from the official S3 release (specified via `RELEASE` environment variable). Optionally supports geographic filtering using bounding boxes (`BBOX` environment variable) for smaller regional extracts.
 
-2. **Transform**: Processes the downloaded data into PMTiles format using theme-specific profiles and scripts (see Profiles and Scripts section below).
+2. **Transform**: Processes the downloaded data into PMTiles format using theme-specific Planetiler profiles (see Profiles section below).
 
 3. **Upload**: Publishes the generated PMTiles to a specified S3 bucket (`OUTPUT` environment variable).
 
@@ -37,12 +36,10 @@ The Docker container accepts the following environment variables:
 | `S3_REGION` | No | S3 region for data access (defaults to `us-west-2`) |
 | `SKIP_UPLOAD` | No | Set to `true` to skip S3 upload (useful for local testing) |
 
-## Profiles and Scripts
-Profiles and scripts define how Overture Maps data is processed into vector tiles:
-- **Planetiler profiles**: Used for `base`, `transportation`, `buildings`, and `addresses` themes. See [profiles/](profiles/) for details.
-- **Tippecanoe scripts**: Used for `places` and `divisions` themes. See [scripts/](scripts/) for details.
+## Profiles
+All six themes (`base`, `transportation`, `buildings`, `addresses`, `places`, and `divisions`) are processed using Planetiler profiles. See [profiles/](profiles/) for details.
 
-Currently, these are fixed within the Docker image. There are ideas to support custom profiles and scripts in the future.
+Currently, profiles are fixed within the Docker image. There are plans to support custom profiles in the future.
 
 ## Deploying to AWS
 The CDK stack creates AWS Batch infrastructure for processing tiles at scale. Configure your S3 bucket and AWS account in [overture-tiles-cdk/bin/overture-tiles-cdk.ts](overture-tiles-cdk/bin/overture-tiles-cdk.ts), then deploy with standard CDK commands or use the [justfile](justfile) recipes.
@@ -78,16 +75,15 @@ just test-local places
 
 Or manually with Docker:
 ```sh
-docker build -t overture-tiles:test .
-docker run --name overture-test \
+docker build -t overture-tiles:latest .
+docker run --rm --name overture-test \
     -v $(pwd):/data \
-    -e RELEASE='2025-11-19.0' \
+    -e RELEASE='<overture-release-version>' \
     -e OUTPUT='noop' \
     -e THEME='places' \
     -e BBOX='-122.5247,37.7081,-122.3569,37.8324' \
     -e SKIP_UPLOAD='true' \
-    overture-tiles:test
-docker rm overture-test
+    overture-tiles:latest
 ```
 
 ## License
