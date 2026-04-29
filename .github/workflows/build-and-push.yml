@@ -1,3 +1,10 @@
+# Build and Push Docker Image
+# Triggered on GitHub release publish. Builds a Linux ARM64 Docker image,
+# generates SLSA provenance and SBOM attestations, and pushes to GitHub Container Registry (ghcr.io).
+#
+# Verify attestations after release:
+#   gh attestation verify oci://ghcr.io/ORG/REPO:TAG --owner ORG
+
 name: Build and Push Docker Image
 
 on:
@@ -38,11 +45,12 @@ jobs:
 
       - name: Extract version from release tag
         id: version
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
           # Extract version from tag (e.g., v1.0.0 -> 1.0.0)
           TAG_NAME="${GITHUB_EVENT_RELEASE_TAG_NAME}"
           VERSION="${TAG_NAME#v}"
-
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "Release version: ${VERSION}"
         env:
@@ -50,6 +58,8 @@ jobs:
 
       - name: Set lowercase repository
         id: lowercase
+        env:
+          REPO: ${{ github.repository }}
         run: |
           echo "repository=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
         env:
@@ -61,8 +71,17 @@ jobs:
           context: .
           platforms: linux/arm64
           push: true
+          provenance: mode=max  # SLSA provenance attestation manifest stored in registry
+          sbom: true            # SPDX SBOM attestation manifest stored in registry
           tags: |
             ghcr.io/${{ steps.lowercase.outputs.repository }}:latest
             ghcr.io/${{ steps.lowercase.outputs.repository }}:${{ steps.version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Attest image provenance
+        uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32 #v4.1.0
+        with:
+          subject-name: ghcr.io/${{ steps.lowercase.outputs.repository }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true

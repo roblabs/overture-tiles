@@ -31,11 +31,11 @@ fi
 if [ -n "$SOURCE_OVERRIDE" ]; then
   if [ -n "${BBOX:-}" ]; then
     echo "Downloading from override source: $SOURCE_OVERRIDE with bbox filter..."
-    aws s3 sync --no-progress --region "$S3_REGION" "$SOURCE_OVERRIDE" /tmp/overture_source/theme=$THEME
+    AWS_REGION="$S3_REGION" s5cmd sync "${SOURCE_OVERRIDE%/}/*" /tmp/overture_source/theme=$THEME
     bash "$(dirname "$0")/bbox.sh" "" "$BBOX" "$THEME" /data "" "" /tmp/overture_source
   else
     echo "Downloading from override source: $SOURCE_OVERRIDE"
-    aws s3 sync --no-progress --region "$S3_REGION" "$SOURCE_OVERRIDE" /data/theme=$THEME
+    AWS_REGION="$S3_REGION" s5cmd sync "${SOURCE_OVERRIDE%/}/*" /data/theme=$THEME
   fi
 elif [ -n "$RELEASE" ]; then
   # Official Overture release (supports bbox filtering)
@@ -44,7 +44,7 @@ elif [ -n "$RELEASE" ]; then
     bash "$(dirname "$0")/bbox.sh" "$RELEASE" "$BBOX" "$THEME" /data "$OVERTURE_RELEASE_BUCKET" "$OVERTURE_REGION"
   else
     echo "Downloading from Overture release: $RELEASE"
-    aws s3 sync --no-progress --region "$OVERTURE_REGION" --no-sign-request "$OVERTURE_RELEASE_BUCKET/$RELEASE/theme=$THEME" /data/theme=$THEME
+    AWS_REGION="$OVERTURE_REGION" s5cmd --no-sign-request sync "${OVERTURE_RELEASE_BUCKET}/${RELEASE}/theme=${THEME}/*" /data/theme=$THEME
   fi
 else
   echo "Error: Either RELEASE or SOURCE_OVERRIDE environment variable must be provided"
@@ -57,5 +57,5 @@ java -XX:MaxRAMPercentage=70 -cp planetiler.jar /profiles/$className.java --data
 
 if [ "$SKIP_UPLOAD" != "true" ]; then
   [[ "$OUTPUT" != */ ]] && OUTPUT="${OUTPUT}/"
-  aws s3 cp --no-progress /data/$THEME.pmtiles "$OUTPUT"
+  AWS_REGION="$S3_REGION" s5cmd cp /data/$THEME.pmtiles "$OUTPUT"
 fi

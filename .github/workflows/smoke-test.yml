@@ -1,0 +1,61 @@
+# Smoke Test
+# Builds the Docker image and runs a small bbox test for each theme matrix entry.
+# Verifies that the output PMTiles file is created and non-trivially sized.
+
+name: Smoke Test
+
+on:
+  pull_request:
+    paths:
+      - Dockerfile
+      - run.sh
+      - bbox.sh
+      - justfile
+      - scripts/**
+      - profiles/**
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    name: Smoke Test
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      matrix:
+        theme: [places]
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Run smoke test (${{ matrix.theme }})
+        env:
+          THEME: ${{ matrix.theme }}
+        run: just test-local "$THEME"
+
+      - name: Verify output
+        env:
+          THEME: ${{ matrix.theme }}
+        run: |
+          OUTPUT_FILE="${THEME}.pmtiles"
+          if [ ! -f "$OUTPUT_FILE" ]; then
+            echo "ERROR: $OUTPUT_FILE not found"
+            exit 1
+          fi
+          SIZE=$(stat -c%s "$OUTPUT_FILE")
+          echo "$OUTPUT_FILE: ${SIZE} bytes"
+          if [ "$SIZE" -lt 1024 ]; then
+            echo "ERROR: output file suspiciously small (${SIZE} bytes)"
+            exit 1
+          fi
