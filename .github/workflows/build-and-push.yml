@@ -25,7 +25,8 @@ jobs:
 
     permissions:
       contents: read
-      packages: write  # required to push to GitHub Container Registry
+      packages: write   # required to push to GitHub Container Registry
+      id-token: write   # required for OIDC signing by attest-build-provenance
 
     steps:
       - name: Checkout code
@@ -66,6 +67,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
 
       - name: Build and push Docker image
+        id: build
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
