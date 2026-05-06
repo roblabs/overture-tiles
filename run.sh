@@ -55,6 +55,9 @@ fi
 className="${THEME^}"
 java -XX:MaxRAMPercentage=70 -cp planetiler.jar /profiles/$className.java --data=/data
 
+# Remove downloaded parquet files — storage may be shared across containers on the same EC2 instance
+rm -rf /data/theme=$THEME /tmp/overture_source
+
 if [ "$SKIP_UPLOAD" != "true" ]; then
   [[ "$OUTPUT" != */ ]] && OUTPUT="${OUTPUT}/"
   AWS_REGION="$S3_REGION" s5cmd cp /data/$THEME.pmtiles "$OUTPUT"
