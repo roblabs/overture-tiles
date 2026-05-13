@@ -8,7 +8,7 @@ public class Base implements OvertureProfile.Theme {
     @Override
     public void processFeature(SourceFeature source, FeatureCollector features) {
         String layer = source.getSourceLayer();
-        String clazz = source.getString("class");
+        String subtype = source.getString("subtype");
         var feature = OvertureProfile.createAnyFeature(source, features);
         if (layer.equals("infrastructure")) {
             feature.setMinZoom(13);
@@ -17,7 +17,7 @@ public class Base implements OvertureProfile.Theme {
             int minzoom = 7;
             if (source.isPoint()) {
                 minzoom = 13;
-            } else if (clazz.equals("land") || clazz.equals("glacier")) {
+            } else if (subtype.equals("land") || subtype.equals("glacier")) {
                 minzoom = 0;
             }
             if (minzoom == 0) {
@@ -33,7 +33,7 @@ public class Base implements OvertureProfile.Theme {
             int minzoom = 9;
             if (source.isPoint()) {
                 minzoom = 13;
-            } else if (clazz.equals("residential")) {
+            } else if (subtype.equals("residential")) {
                 minzoom = 6;
             }
             feature.setMinZoom(minzoom);
@@ -45,32 +45,26 @@ public class Base implements OvertureProfile.Theme {
             feature.setMinZoom(minZoom);
             OvertureProfile.addFullTags(source, feature, minZoom);
         } else if (layer.equals("water")) {
-            int minzoom = 13;
+            int minZoom = 13;
             if (source.isPoint()) {
-                if (clazz.equals("ocean")) {
-                    minzoom = 0;
+                if (subtype.equals("ocean")) {
+                    minZoom = 0;
                 } else {
-                    minzoom = 8;
+                    minZoom = 8;
                 }
             } else {
-                if (clazz.equals("ocean")) {
-                    minzoom = 0;
-                }
-                if (clazz.equals("lake") || clazz.equals("reservoir")) {
-                    minzoom = 4;
-                } else if (clazz.equals("river")) {
-                    minzoom = 9;
-                } else if (clazz.equals("canal")) {
-                    minzoom = 12;
-                } else if (clazz.equals("stream")) {
-                    minzoom = 13;
+                if (subtype.equals("ocean")) {
+                    minZoom = 0;
+                    feature.setMinPixelSize(0);
+                } else if (source.canBePolygon()) {
+                    minZoom = 4;
+                    feature.setMinPixelSize(0);
+                } else if (subtype.equals("river")) {
+                    minZoom = 9;
                 }
             }
-            feature.setMinZoom(minzoom);
-            if (minzoom == 0) {
-                feature.setMinPixelSize(0);
-            }
-            OvertureProfile.addFullTags(source, feature, MAXZOOM);
+            feature.setMinZoom(minZoom);
+            OvertureProfile.addFullTags(source, feature, minZoom);
         }
     }
 

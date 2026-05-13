@@ -25,7 +25,9 @@ jobs:
 
     permissions:
       contents: read
-      packages: write  # required to push to GitHub Container Registry
+      packages: write      # required to push to GitHub Container Registry
+      id-token: write      # required for OIDC signing by attest-build-provenance
+      attestations: write  # required to persist attestation to GitHub
 
     steps:
       - name: Checkout code
@@ -46,26 +48,23 @@ jobs:
       - name: Extract version from release tag
         id: version
         env:
-          TAG_NAME: ${{ github.event.release.tag_name }}
+          GITHUB_EVENT_RELEASE_TAG_NAME: ${{ github.event.release.tag_name }}
         run: |
           # Extract version from tag (e.g., v1.0.0 -> 1.0.0)
           TAG_NAME="${GITHUB_EVENT_RELEASE_TAG_NAME}"
           VERSION="${TAG_NAME#v}"
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "Release version: ${VERSION}"
-        env:
-          GITHUB_EVENT_RELEASE_TAG_NAME: ${{ github.event.release.tag_name }}
 
       - name: Set lowercase repository
         id: lowercase
         env:
-          REPO: ${{ github.repository }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           echo "repository=${GITHUB_REPOSITORY,,}" >> $GITHUB_OUTPUT
-        env:
-          GITHUB_REPOSITORY: ${{ github.repository }}
 
       - name: Build and push Docker image
+        id: build
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .

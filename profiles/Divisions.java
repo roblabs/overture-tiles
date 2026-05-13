@@ -8,7 +8,6 @@ public class Divisions implements OvertureProfile.Theme {
     @Override
     public void processFeature(SourceFeature source, FeatureCollector features) {
         String layer = source.getSourceLayer();
-        String clazz = source.getString("class");
         String subtype = source.getString("subtype");
         int minzoom = switch (subtype) {
             case "country" -> 0;
