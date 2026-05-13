@@ -5,8 +5,11 @@ ARG TARGETARCH
 ARG DUCKDB_VERSION=1.5.1
 ARG PLANETILER_VERSION=0.10.2
 ARG S5CMD_VERSION=2.3.0
+ARG TILES_VERSION=dev
 
 LABEL org.opencontainers.image.title="overture-tiles"
+
+ENV TILES_VERSION=${TILES_VERSION}
 
 RUN dnf install -y gzip tar unzip && dnf clean all && \
     \
