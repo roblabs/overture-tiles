@@ -74,7 +74,7 @@ public class OvertureProfile implements Profile {
 
     @Override
     public String description() {
-        return "A tileset generated from Overture data";
+        return "tiles.version=" + System.getProperty("tiles.version","dev");
     }
 
     @Override
