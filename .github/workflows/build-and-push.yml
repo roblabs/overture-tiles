@@ -72,6 +72,8 @@ jobs:
           push: true
           provenance: mode=max  # SLSA provenance attestation manifest stored in registry
           sbom: true            # SPDX SBOM attestation manifest stored in registry
+          build-args: |
+            TILES_VERSION=${{ steps.version.outputs.version }}
           tags: |
             ghcr.io/${{ steps.lowercase.outputs.repository }}:latest
             ghcr.io/${{ steps.lowercase.outputs.repository }}:${{ steps.version.outputs.version }}

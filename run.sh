@@ -53,7 +53,9 @@ fi
 
 # Generate tiles based on theme
 className="${THEME^}"
-java -XX:MaxRAMPercentage=70 -cp planetiler.jar /profiles/$className.java --data=/data
+java -XX:MaxRAMPercentage=70 \
+  -Dtiles.version="${TILES_VERSION:-dev}" \
+  -cp planetiler.jar /profiles/$className.java --data=/data
 
 # Remove downloaded parquet files — storage may be shared across containers on the same EC2 instance
 rm -rf /data/theme=$THEME /tmp/overture_source
