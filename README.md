@@ -4,14 +4,11 @@
 Create tilesets from [Overture Maps](http://overturemaps.org) data.
 
 ## Overview
-This project provides tools to create vector tilesets in PMTiles format from Overture Maps data using Planetiler. It includes AWS CDK constructs for deploying the necessary infrastructure to generate and host the tilesets.
+This project provides tools to create vector tilesets in PMTiles format from Overture Maps data using Planetiler.
 
-> **Note**: Currently focused on AWS infrastructure (S3 & Batch), though the core processing runs in Docker containers
+A reusable Terraform/OpenTofu module to create tilesets on AWS is available at [OvertureMaps/terraform-aws-overture-tiles](https://github.com/OvertureMaps/terraform-aws-overture-tiles).
 
-## Project Structure
-The repository is organized into the following main components:
-- **Infrastructure**: AWS CDK constructs to deploy the processing and hosting infrastructure.
-- **Profiles**: Planetiler profiles to define how to process Overture Maps data into vector tiles for all six themes.
+For detailed deployment instructions, see the [Overture Tiles documentation](https://docs.overturemaps.org/examples/overture-tiles/).
 
 ## Architecture
 The tile generation pipeline follows a three-stage process:
@@ -37,15 +34,9 @@ The Docker container accepts the following environment variables:
 | `SKIP_UPLOAD` | No | Set to `true` to skip S3 upload (useful for local testing) |
 
 ## Profiles
-All six themes (`base`, `transportation`, `buildings`, `addresses`, `places`, and `divisions`) are processed using Planetiler profiles. See [profiles/](profiles/) for details.
+All six themes (`addresses`, `base`, `buildings`, `divisions`, `places`, `transportation`) are processed using Planetiler profiles. See [profiles/](profiles/) for details.
 
 Currently, profiles are fixed within the Docker image. There are plans to support custom profiles in the future.
-
-## Deploying to AWS
-The CDK stack creates AWS Batch infrastructure for processing tiles at scale. Configure your S3 bucket and AWS account in [overture-tiles-cdk/bin/overture-tiles-cdk.ts](overture-tiles-cdk/bin/overture-tiles-cdk.ts), then deploy with standard CDK commands or use the [justfile](justfile) recipes.
-
-For detailed deployment instructions, see the [Overture Tiles documentation](https://docs.overturemaps.org/examples/overture-tiles/).
-
 
 ## Development
 
