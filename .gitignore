@@ -2,4 +2,3 @@
 *.parquet
 data
 *.jar
-overture-tiles-cdk/cdk.context.json
