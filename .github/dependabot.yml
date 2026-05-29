@@ -2,25 +2,6 @@
 version: 2
 updates:
 
-  # Maintain NPM dependencies for overture-tiles-cdk
-  - package-ecosystem: "npm"
-    directory: "/overture-tiles-cdk"
-    schedule:
-      interval: "weekly"
-    open-pull-requests-limit: 5
-    labels:
-      - "bot"
-    commit-message:
-      prefix: "[CHORE](deps)"
-      include: "scope"
-    groups:
-      aws:
-        patterns:
-          - "aws*"
-          - "@aws-cdk*"
-    cooldown:
-      default-days: 7
-
   # Maintain GitHub Actions dependencies
   - package-ecosystem: "github-actions"
     directory: "/"
