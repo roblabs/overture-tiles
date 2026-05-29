@@ -13,16 +13,25 @@
 			"username": "overture",
 			"upgradePackages": "true"
 		},
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+		"ghcr.io/devcontainers/features/docker-in-docker:3": {
 			"version": "latest",
-			"moby": true
+			"moby": false
 		}
 	},
 
 	// Mount:  Docker & AWS
 	"mounts": [
-		"source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind",
-		"source=${localEnv:HOME}/.aws,target=/home/overture/.aws,type=bind,consistency=cached"
+        // uncomment To use AWS CLI.  The folder ~/.aws must exist.
+        "source=${localEnv:HOME}/.aws,target=/home/overture/.aws,type=bind,consistency=cached",
+
+        // uncomment To use Azure CLI.  The folder ~/.azure must exist.
+        // "source=${localEnv:HOME}/.azure,target=/home/node/.azure,type=bind,consistency=cached",
+
+        // uncomment To use your global Git config & ignore.  The files ~/.gitconfig and ~/.gitignore must exist.
+        "source=${localEnv:HOME}/.gitconfig,target=/home/overture/.gitconfig,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.gitignore,target=/home/overture/.gitignore,type=bind,consistency=cached",
+
+		"source=/var/run/docker.sock,target=/var/run/docker-host.sock,type=bind"
 	],
 
 	// Configure tool-specific properties.

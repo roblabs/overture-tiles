@@ -1,15 +1,15 @@
 #!/usr/bin/env sh
 
 # Update & install packages
-sudo apt update -y
-    # sudo apt install -y just  # https://github.com/casey/just  # TODO:  an old version of `just` is installed for somereason
-curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | sudo bash -s -- --to /usr/local/bin
+sudo apt update -y  &&  \
+    sudo apt install -y \
+    just \ # https://github.com/casey/just
 
 # ---
 
 # PMTiles
 # https://github.com/protomaps/go-pmtiles/releases
-PMTILES_VERSION="1.30.1"
+PMTILES_VERSION="1.30.3"
 UNAME_KERNEL_NAME=$(uname -s)
 UNAME_PROCESSOR_NAME=$(uname -m)
 PROCESSOR=""
